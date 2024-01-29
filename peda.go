@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/aiteung/atapi"
+	"github.com/aiteung/atmessage"
+	"github.com/whatsauth/wa"
 	"github.com/whatsauth/watoken"
 )
 
@@ -45,7 +48,7 @@ func GCFReturnStruct(DataStuct any) string {
 	return string(jsondata)
 }
 
-func CreateUser(mongoenv, dbname, collname string, r *http.Request) string {
+func CreateUser(token, mongoenv, dbname, collname string, r *http.Request) string {
 	var response Credential
 	response.Status = false
 	mconn := SetConnection(mongoenv, dbname)
@@ -60,6 +63,19 @@ func CreateUser(mongoenv, dbname, collname string, r *http.Request) string {
 			response.Message = "Gagal Hash Password" + err.Error()
 		}
 		InsertUserdata(mconn, collname, datauser.Username, datauser.Role, hash)
+		// Prepare and send a WhatsApp message with registration details
+		var username = datauser.Username
+		var password = datauser.Password
+		var nohp = datauser.No_whatsapp
+		dt := &wa.TextMessage{
+			To:       nohp,
+			IsGroup:  false,
+			Messages: "Selamat anda berhasil registrasi, berikut adalah username anda: " + username + "\nDan ini adalah password anda: " + password + "\nDisimpan baik baik ya",
+		}
+	
+		// Make an API call to send WhatsApp message
+		atapi.PostStructWithToken[atmessage.Response]("Token", os.Getenv(token), dt, "https://api.wa.my.id/api/send/message/text")
+	
 		response.Message = "Berhasil Input data"
 	}
 	return GCFReturnStruct(response)

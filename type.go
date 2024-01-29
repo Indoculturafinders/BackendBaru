@@ -42,9 +42,10 @@ type Properties struct {
 }
 
 type User struct {
-	Username string `json:"username" bson:"username"`
-	Password string `json:"password" bson:"password"`
-	Role     string `json:"role,omitempty" bson:"role,omitempty"`
+	Username    string `json:"username" bson:"username"`
+	Password    string `json:"password" bson:"password"`
+	Role        string `json:"role,omitempty" bson:"role,omitempty"`
+	No_whatsapp string `json:"no_whatsapp,omitempty" bson:"no_whatsapp,omitempty"`
 }
 
 type Credential struct {
